@@ -6,7 +6,10 @@
         <title>Document</title>
     </head>
     <body>
-        <canvas id="app" width="600" height="400"></canvas>
+        <div class="container">
+            <canvas id="app" width="600" height="400"></canvas>
+            <button id="step-button">Step</button>
+        </div>
     </body>
     <style>
         * {
@@ -17,12 +20,33 @@
         body {
             height: 100vh;
             display: flex;
-            flex-direction: oclumn;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #282828;
         }
-    </style>
-
-    <script src="loader.js"></script>
-</html>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            background-color: #282828;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        button {
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            background-color: #458588;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #689d6a;
+        }
+        </style>
+    
+        <script src="loader.js" defer></script>
+    </html>

@@ -239,6 +239,8 @@ fn model_forward(x: Matrix(f32), t: Matrix(usize)) void {
     add_bias(mlp_activations[4], biases[4]);
 }
 
+var rnd = std.rand.DefaultPrng.init(42);
+
 const BetaSchedule = enum { Linear, Quadratic };
 
 const NoiseScheduler = struct {
@@ -309,7 +311,7 @@ const NoiseScheduler = struct {
         }
     }
 
-    fn add_variance(rnd: *std.rand.DefaultPrng, t: usize) void {
+    fn add_variance(t: usize) void {
         if (t == 0) return;
 
         var variance = betas[t] * (1.0 - alphas_cumprod[t - 1]) / (1.0 - alphas_cumprod[t]);
@@ -325,29 +327,35 @@ const NoiseScheduler = struct {
         }
     }
 
-    fn step(rnd: *std.rand.DefaultPrng, t: usize, residuals: []const f32) void {
+    fn step(t: usize, residuals: []const f32) void {
         reconstruct_x0(t, residuals);
         q_posterior(t);
-        add_variance(rnd, t);
+        add_variance(t);
     }
 };
 
-export fn run() void {
-    var rnd = std.rand.DefaultPrng.init(42);
+export fn init() void {
     const sample_size = sample.shape[0] * sample.shape[1];
     for (0..sample_size) |i| {
         sample.data[i] = rnd.random().floatNorm(f32);
     }
-
     NoiseScheduler.init(.Linear);
+}
+
+export fn step(t: usize) void {
+    @memset(timesteps.data, t);
+    model_forward(sample, timesteps);
+    NoiseScheduler.step(t, mlp_activations[4].data);
+    @memcpy(sample.data, new_sample.data);
+}
+
+fn run() void {
+    init();
 
     var t: usize = NUM_TIMESTEPS;
     while (t > 0) {
         t -= 1;
-        @memset(timesteps.data, t);
-        model_forward(sample, timesteps);
-        NoiseScheduler.step(&rnd, t, mlp_activations[4].data);
-        @memcpy(sample.data, new_sample.data);
+        step(t);
     }
     // std.debug.print("new_sample = {any}\n", .{new_sample.data});
 }
