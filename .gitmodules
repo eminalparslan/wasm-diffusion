@@ -1,0 +1,3 @@
+[submodule "tiny-diffusion"]
+	path = tiny-diffusion
+	url = git@github.com:tanelp/tiny-diffusion.git
