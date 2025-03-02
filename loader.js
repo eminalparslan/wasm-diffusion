@@ -29,13 +29,7 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), {
     plot(xs, ys, t);
   }
 
-  init();
-  step(t);
-  updatePlot();
-
-  const stepButton = document.getElementById("step-button");
-  stepButton.addEventListener("click", () => {
-    t -= 1;
+  function update() {
     if (t < 0) {
       stepButton.disabled = true;
       stepButton.style.backgroundColor = "#7c6f64";
@@ -44,6 +38,18 @@ WebAssembly.instantiateStreaming(fetch("main.wasm"), {
     }
     step(t);
     updatePlot();
+    t -= 1;
+  }
+
+  init();
+  update();
+
+  const stepButton = document.getElementById("step-button");
+  stepButton.addEventListener("click", update);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === " ") {
+      update();
+    }
   });
 });
 
